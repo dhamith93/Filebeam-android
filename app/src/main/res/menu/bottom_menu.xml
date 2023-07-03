@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/devices"
+        android:title="Devices"
+        android:icon="@drawable/baseline_devices_24"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/files"
+        android:title="Files"
+        android:icon="@drawable/baseline_upload_file_24"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/transfers"
+        android:title="Transfers"
+        android:icon="@drawable/baseline_compare_arrows_24"
+        app:showAsAction="ifRoom"/>
+
+</menu>
