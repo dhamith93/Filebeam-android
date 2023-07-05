@@ -26,16 +26,15 @@ public class APIServer {
     }
 
     public void start() throws IOException {
-        int port = 9292; // Choose a port for your server
+        int port = 9292;
 
         server = OkHttpServerBuilder.forPort(port, InsecureServerCredentials.create())
-                .addService(new FileService(context)) // Add your gRPC service implementation
+                .addService(new FileService())
                 .build()
                 .start();
 
         System.out.println("Server started on port " + port);
 
-        // Handle server shutdown gracefully
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
     }
 

@@ -1,6 +1,7 @@
 package me.dhamith.filebeam.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,7 +44,7 @@ public class TransferAdapter extends RecyclerView.Adapter<TransferAdapter.Transf
         if (transfer.getStatus().equals(Transfer.STARTED) || transfer.getStatus().equals(Transfer.COMPLETED)) {
             long endTime = transfer.getEndTime() != -1 ? transfer.getEndTime() : (java.lang.System.currentTimeMillis() / 1000L);
             float speed = System.getSpeed(transfer.getStartTime(), endTime, transfer.getCompletedBytes());
-            holder.time.setText(System.handleTimeString(transfer.getFile().getSize(), transfer.getCompletedBytes(), transfer.getStartTime(), speed));
+            holder.time.setText(System.handleTimeString(transfer.getFile().getSize(), transfer.getCompletedBytes(), transfer.getStartTime(), endTime, speed));
             String fileSizeStr = System.getSimplifiedFileSize(transfer.getCompletedBytes()) + " / " + size + "  " + System.getSimplifiedFileSize((long)speed) + "/s";
             holder.fileSize.setText(fileSizeStr);
         }
@@ -58,7 +59,7 @@ public class TransferAdapter extends RecyclerView.Adapter<TransferAdapter.Transf
         }
         if (transfer.getStatus().equals(Transfer.STARTED) || transfer.getStatus().equals(Transfer.ERROR)) {
             holder.progress.setVisibility(View.VISIBLE);
-            holder.progress.setProgress(transfer.getProgress(), true);
+            holder.progress.setProgress((int) ((transfer.getCompletedBytes() / (double) transfer.getFile().getSize()) * 100), true);
         }
     }
 

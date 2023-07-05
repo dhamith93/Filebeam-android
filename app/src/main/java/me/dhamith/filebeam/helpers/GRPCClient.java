@@ -69,6 +69,7 @@ public class GRPCClient {
     public void handleFileList(String key) {
         int count = 0;
         for (File f : File.getSelectedFileList()) {
+            f.setKey(key);
             Api.File file = Api.File.newBuilder()
                     .setId(count)
                     .setName(f.getName())

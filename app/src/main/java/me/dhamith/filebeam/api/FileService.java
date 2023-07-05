@@ -13,11 +13,6 @@ import me.dhamith.filebeam.pojo.File;
 import me.dhamith.filebeam.pojo.Transfer;
 
 public class FileService extends FileServiceImplBase {
-    private Context context;
-
-    FileService(Context context) {
-        this.context = context;
-    }
     @Override
     public void hello(Api.Void request, StreamObserver<Api.Void> responseObserver) {
         responseObserver.onNext(Api.Void.newBuilder().build());
@@ -48,8 +43,8 @@ public class FileService extends FileServiceImplBase {
                 )
         );
         try {
-            File.getSelectedFileList().get(file.getId()).send(idx, host, Integer.parseInt(port));
-        } catch (IOException e) {
+            File.getSelectedFileList().get(file.getId()).sendEncrypted(idx, host, Integer.parseInt(port));
+        } catch (Exception e) {
             Transfer.getTransfers().get(idx).setStatus(Transfer.ERROR);
             Transfer.getTransfers().get(idx).setError(e);
             throw new RuntimeException(e);

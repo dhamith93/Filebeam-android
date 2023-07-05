@@ -5,15 +5,29 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
+import android.util.Log;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactorySpi;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 public class File {
     private String name;
@@ -21,6 +35,9 @@ public class File {
     private Long size;
     private Uri uri;
     private String path;
+
+    private String key;
+
     private static List<File> selectedFileList;
 
     public static File fromUri(Context context, Uri uri) {
@@ -62,7 +79,57 @@ public class File {
         return filePath;
     }
 
+    public void sendEncrypted(int transferIdx, String host, int port) throws Exception {
+        Transfer transfer = null;
 
+        byte[] keyBytes = this.key.getBytes();
+
+        try (Socket socket = new Socket(host, port);
+             OutputStream outputStream = socket.getOutputStream();
+             FileInputStream fileInputStream = new FileInputStream(getPath())) {
+
+            transfer = Transfer.getTransfers().get(transferIdx);
+            transfer.setStatus(Transfer.STARTED);
+            transfer.setStartTime(System.currentTimeMillis() / 1000L);
+
+            byte[] ivBytes = new byte[16];
+            SecureRandom secureRandom = new SecureRandom();
+            secureRandom.nextBytes(ivBytes);
+            outputStream.write(ivBytes);
+
+            SecretKey secretKey = new SecretKeySpec(keyBytes, "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CFB/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey, new IvParameterSpec(ivBytes));
+
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+                if (transfer.getStatus().equals(Transfer.CANCELED)) {
+                    break;
+                }
+                byte[] encryptedBytes = cipher.update(buffer, 0, bytesRead);
+                outputStream.write(encryptedBytes);
+                transfer.setCompletedBytes(
+                        transfer.getCompletedBytes() + bytesRead
+                );
+            }
+
+            byte[] encryptedBytes = cipher.doFinal();
+            outputStream.write(encryptedBytes);
+
+            getSelectedFileList().remove(this);
+            transfer.setStatus(Transfer.COMPLETED);
+            transfer.setEndTime(System.currentTimeMillis() / 1000L);
+        } catch (Exception e) {
+            if (transfer != null) {
+                transfer.setStatus(Transfer.ERROR);
+                transfer.setError(e);
+                transfer.setEndTime(System.currentTimeMillis() / 1000L);
+            }
+            throw e;
+        }
+    }
 
     public void send(int transferIdx, String host, int port) throws IOException {
         Socket socket = new Socket();
@@ -86,14 +153,14 @@ public class File {
                 transfer.setCompletedBytes(
                     transfer.getCompletedBytes() + count
                 );
-                transfer.setProgress((int) (transfer.getCompletedBytes() / (double) transfer.getFile().getSize()) * 100);
+//                transfer.setProgress((int) (transfer.getCompletedBytes() / (double) transfer.getFile().getSize()) * 100);
             }
 
             fis.close();
 
             getSelectedFileList().remove(this);
             if (transfer.getCompletedBytes() == transfer.getFile().getSize()) {
-                transfer.setProgress(100);
+//                transfer.setProgress(100);
                 transfer.setStatus(Transfer.COMPLETED);
             }
         } catch (Exception e) {
@@ -161,5 +228,13 @@ public class File {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
     }
 }

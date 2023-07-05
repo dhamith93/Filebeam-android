@@ -20,7 +20,7 @@ public class Transfer {
     private long completedBytes;
     private long startTime;
     private long endTime;
-    private int progress;
+//    private int progress;
     private String status;
     private String type;
     private File file;
@@ -111,13 +111,13 @@ public class Transfer {
         return status;
     }
 
-    public int getProgress() {
-        return progress;
-    }
-
-    public void setProgress(int progress) {
-        this.progress = progress;
-    }
+//    public int getProgress() {
+//        return progress;
+//    }
+//
+//    public void setProgress(int progress) {
+//        this.progress = progress;
+//    }
 
     public void setStatus(String status) {
         this.status = status;

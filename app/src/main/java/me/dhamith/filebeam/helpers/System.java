@@ -1,10 +1,5 @@
 package me.dhamith.filebeam.helpers;
 
-import android.content.ContentUris;
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-import android.provider.MediaStore;
 import android.util.Log;
 
 import java.net.InetAddress;
@@ -15,8 +10,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.BlockingQueue;
-import java.util.stream.Collectors;
 
 public class System {
     public static List<String> getLocalIPs() {
@@ -45,7 +38,6 @@ public class System {
 
     public static List<List<Integer>> getLocalIPsAsInt() {
         List<String> ips = getLocalIPs();
-        Log.e("IPS", ips.toString());
         List<List<Integer>> output = new ArrayList<>();
 
         for (String ip : ips) {
@@ -127,9 +119,9 @@ public class System {
         return String.format(new Locale("en", "us"), "%.2f", (float)seconds) + "s";
     }
 
-    public static String handleTimeString(long fileSize, long completedBytes, long startTime, float speed) {
+    public static String handleTimeString(long fileSize, long completedBytes, long startTime, long endTime, float speed) {
         String eta = convertToHumanReadableTime((int) ((fileSize - completedBytes) / speed));
-        int diff = (int) ((java.lang.System.currentTimeMillis() / 1000L) - startTime);
+        int diff = (int) (endTime - startTime);
         String elapsed = convertToHumanReadableTime(diff);
         return String.format(new Locale("en", "us"), "ETA: %s | Spent: %s", eta, elapsed) ;
     }

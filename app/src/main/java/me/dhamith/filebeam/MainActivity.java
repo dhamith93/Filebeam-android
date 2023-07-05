@@ -54,14 +54,6 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.READ_MEDIA_VIDEO,
     };
     private ActivityMainBinding binding;
-    private TextView txtIP, txtKey;
-//    private RecyclerView devicesView;
-    private Button btnFiles;
-//    private String port;
-//    private List<String> devices;
-//    private DeviceListAdapter deviceListAdapter;
-//    private List<File> selectedFiles;
-
     final DevicesFragment devicesFragment = new DevicesFragment();
     final FilesFragment filesFragment = new FilesFragment();
     final TransfersFragment transfersFragment = new TransfersFragment();
@@ -109,8 +101,8 @@ public class MainActivity extends AppCompatActivity {
 
         requestPermissionLauncher.launch(REQUIRED_PERMISSIONS);
 
-        txtIP = findViewById(R.id.lblIP);
-        txtKey = findViewById(R.id.lblKey);
+        TextView txtIP = findViewById(R.id.lblIP);
+        TextView txtKey = findViewById(R.id.lblKey);
 
         String key = System.generateRandomString(6);
         txtIP.setText(System.getLocalIPs().toString());
