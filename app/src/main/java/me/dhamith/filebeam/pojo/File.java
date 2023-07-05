@@ -131,53 +131,6 @@ public class File {
         }
     }
 
-    public void send(int transferIdx, String host, int port) throws IOException {
-        Socket socket = new Socket();
-        socket.connect(new InetSocketAddress(host, port), 1000);
-        OutputStream out = socket.getOutputStream();
-        Transfer transfer = null;
-
-        try {
-            transfer = Transfer.getTransfers().get(transferIdx);
-            transfer.setStatus(Transfer.STARTED);
-            transfer.setStartTime(System.currentTimeMillis() / 1000L);
-            FileInputStream fis = new FileInputStream(getPath());
-            byte[] buffer = new byte[1024];
-
-            int count = 0;
-            while ((count = fis.read(buffer)) > 0) {
-                if (transfer.getStatus().equals(Transfer.CANCELED)) {
-                    break;
-                }
-                out.write(buffer, 0, count);
-                transfer.setCompletedBytes(
-                    transfer.getCompletedBytes() + count
-                );
-//                transfer.setProgress((int) (transfer.getCompletedBytes() / (double) transfer.getFile().getSize()) * 100);
-            }
-
-            fis.close();
-
-            getSelectedFileList().remove(this);
-            if (transfer.getCompletedBytes() == transfer.getFile().getSize()) {
-//                transfer.setProgress(100);
-                transfer.setStatus(Transfer.COMPLETED);
-            }
-        } catch (Exception e) {
-            if (transfer != null) {
-                transfer.setStatus(Transfer.ERROR);
-                transfer.setError(e);
-            }
-            e.printStackTrace();
-        } finally {
-            if (transfer != null) {
-                transfer.setEndTime(System.currentTimeMillis() / 1000L);
-            }
-            out.close();
-            socket.close();
-        }
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
