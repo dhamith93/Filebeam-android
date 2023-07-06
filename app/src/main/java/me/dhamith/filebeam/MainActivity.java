@@ -3,6 +3,7 @@ package me.dhamith.filebeam;
 import me.dhamith.filebeam.adapters.DeviceListAdapter;
 import me.dhamith.filebeam.api.APIServer;
 import me.dhamith.filebeam.databinding.ActivityMainBinding;
+import me.dhamith.filebeam.helpers.Keygen;
 import me.dhamith.filebeam.helpers.System;
 import me.dhamith.filebeam.pojo.File;
 
@@ -104,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
         TextView txtIP = findViewById(R.id.lblIP);
         TextView txtKey = findViewById(R.id.lblKey);
 
-        String key = System.generateRandomString(6);
+        String key = Keygen.generate();
         txtIP.setText(System.getLocalIPs().toString());
         txtKey.setText(key);
 
