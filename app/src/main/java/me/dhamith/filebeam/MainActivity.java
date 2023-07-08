@@ -105,12 +105,11 @@ public class MainActivity extends AppCompatActivity {
         TextView txtIP = findViewById(R.id.lblIP);
         TextView txtKey = findViewById(R.id.lblKey);
 
-        String key = Keygen.generate();
+        String key = Keygen.getKey();
         txtIP.setText(System.getLocalIPs().toString());
         txtKey.setText(key);
 
-        APIServer server = APIServer.getApiServer(this);
-        server.setKey(key);
+        APIServer server = APIServer.getApiServer(this, key);
         try {
             if (!server.isRunning()) {
                 server.start();

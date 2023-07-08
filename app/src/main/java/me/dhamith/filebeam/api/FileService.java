@@ -4,15 +4,25 @@ import android.content.Context;
 import android.util.Log;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.Objects;
 
 import api.Api;
 import api.FileServiceGrpc;
 import api.FileServiceGrpc.FileServiceImplBase;
+import io.grpc.Grpc;
+import io.grpc.ServerCall;
 import io.grpc.stub.StreamObserver;
 import me.dhamith.filebeam.pojo.File;
 import me.dhamith.filebeam.pojo.Transfer;
 
 public class FileService extends FileServiceImplBase {
+    private String key;
+    public static final io.grpc.Context.Key<String> CLIENT_IP_KEY = io.grpc.Context.key("client-ip");
+
+    FileService(String key) {
+        this.key = key;
+    }
     @Override
     public void hello(Api.Void request, StreamObserver<Api.Void> responseObserver) {
         responseObserver.onNext(Api.Void.newBuilder().build());
@@ -21,7 +31,26 @@ public class FileService extends FileServiceImplBase {
 
     @Override
     public void filePush(Api.FilePushRequest request, StreamObserver<Api.FilePushResponse> responseObserver) {
-        responseObserver.onNext(Api.FilePushResponse.newBuilder().build());
+        if (!request.getKey().equals(this.key)) {
+            responseObserver.onNext(Api.FilePushResponse.newBuilder().setAccepted(false).build());
+            responseObserver.onCompleted();
+        }
+        String clientIP = FileService.CLIENT_IP_KEY.get();
+        String port = request.getPort();
+        int idx = Transfer.getTransfers().size();
+        Transfer.getTransfers().add(
+                idx,
+                new Transfer(
+                        request.getFile().getId(),
+                        clientIP,
+                        9292,
+                        Integer.parseInt(port),
+                        Transfer.PENDING,
+                        Transfer.DOWNLOAD,
+                        new File(request.getFile().getName(), request.getFile().getType(), request.getFile().getSize())
+                )
+        );
+        responseObserver.onNext(Api.FilePushResponse.newBuilder().setAccepted(true).build());
         responseObserver.onCompleted();
     }
 

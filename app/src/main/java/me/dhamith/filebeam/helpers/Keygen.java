@@ -3,7 +3,15 @@ package me.dhamith.filebeam.helpers;
 import java.security.SecureRandom;
 
 public class Keygen {
-    public static String generate() {
+    private static String key;
+
+    public static String getKey() {
+        if (key == null) {
+            key = generate();
+        }
+        return key;
+    }
+    private static String generate() {
         SecureRandom rand = new SecureRandom();
         return generateNLengthWord(rand, 4) + "-" + generateNLengthWord(rand, 4) + "-" + generateNLengthWord(rand, 6);
     }

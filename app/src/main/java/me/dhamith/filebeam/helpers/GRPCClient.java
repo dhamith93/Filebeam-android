@@ -66,6 +66,24 @@ public class GRPCClient {
         }
     }
 
+    public void sendClearToSend(File file, String port) {
+        try {
+            Api.File f = Api.File.newBuilder()
+                    .setName(file.getName())
+                    .setType(file.getType())
+                    .setSize(file.getSize())
+                    .build();
+            Api.FilePushResponse req = Api.FilePushResponse.newBuilder()
+                    .setFile(f)
+                    .setHost(System.getLocalIPs().get(System.getLocalIPs().size() - 1))
+                    .setPort(port)
+                    .build();
+            client.clearToSend(req);
+        } catch (Exception e) {
+            Log.e("---", e.toString());
+        }
+    }
+
     public void handleFileList(String key) {
         int count = 0;
         for (File f : File.getSelectedFileList()) {

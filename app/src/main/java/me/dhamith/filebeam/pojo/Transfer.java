@@ -111,14 +111,6 @@ public class Transfer {
         return status;
     }
 
-//    public int getProgress() {
-//        return progress;
-//    }
-//
-//    public void setProgress(int progress) {
-//        this.progress = progress;
-//    }
-
     public void setStatus(String status) {
         this.status = status;
     }

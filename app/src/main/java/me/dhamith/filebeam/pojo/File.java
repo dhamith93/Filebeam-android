@@ -3,20 +3,28 @@ package me.dhamith.filebeam.pojo;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import android.util.Log;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -26,8 +34,12 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactorySpi;
+import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+
+import me.dhamith.filebeam.helpers.GRPCClient;
+import me.dhamith.filebeam.helpers.Keygen;
 
 public class File {
     private String name;
@@ -39,6 +51,13 @@ public class File {
     private String key;
 
     private static List<File> selectedFileList;
+
+    public File() {}
+    public File(String name, String type, Long size) {
+        this.name = name;
+        this.type = type;
+        this.size = size;
+    }
 
     public static File fromUri(Context context, Uri uri) {
         Cursor returnCursor = context.getContentResolver().query(uri, null, null, null, null);
@@ -79,6 +98,76 @@ public class File {
         return filePath;
     }
 
+    public void receiveEncrypted(int transferIdx) throws IOException {
+        setName(getName().replace(":", "_"));
+        ServerSocket serverSocket = new ServerSocket(0, 50, InetAddress.getByName("0.0.0.0"));
+        int port = serverSocket.getLocalPort();
+        Transfer transfer = Transfer.getTransfers().get(transferIdx);
+        transfer.setFilePort(port);
+        transfer.setStatus(Transfer.STARTED);
+        Log.e("---", "Server listening on: " + serverSocket.getInetAddress().getHostAddress() + ":" + port);
+
+        new Thread(() -> {
+            GRPCClient client = GRPCClient.create(transfer.getHost() + ":" + transfer.getPort());
+            client.sendClearToSend(this, String.valueOf(port));
+        }).start();
+
+        java.io.File root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        root = new java.io.File(root, transfer.getHost());
+        root.mkdir();
+        if (new java.io.File(root , getName()).exists()) {
+            root = new java.io.File(root , System.currentTimeMillis() / 1000L + "_" + getName());
+        } else {
+            root = new java.io.File(root , getName());
+        }
+
+        java.io.File finalRoot = root;
+        new Thread(() -> {
+            long completed = 0;
+            try (Socket socket = serverSocket.accept();
+                 InputStream inputStream = socket.getInputStream();
+                 FileOutputStream fileOutputStream = new FileOutputStream(finalRoot)
+            ) {
+                byte[] nonce = new byte[16];
+                int bytesRead = inputStream.read(nonce);
+                SecretKey secretKey = new SecretKeySpec(Keygen.getKey().getBytes(), "AES");
+
+                Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
+                cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(nonce));
+
+                byte[] buffer = new byte[4096];
+                int decryptedBytes;
+
+                transfer.setStartTime(System.currentTimeMillis() / 1000L);
+
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    if (transfer.getStatus().equals(Transfer.CANCELED)) {
+                        transfer.setEndTime(System.currentTimeMillis() / 1000L);
+                        return;
+                    }
+                    decryptedBytes = cipher.update(buffer, 0, bytesRead, buffer);
+                    fileOutputStream.write(buffer, 0, decryptedBytes);
+                    completed += bytesRead;
+                    transfer.setCompletedBytes(completed);
+                }
+
+                decryptedBytes = cipher.doFinal(buffer, 0);
+                fileOutputStream.write(buffer, 0, decryptedBytes);
+            } catch (Exception e) {
+                Log.e("---", e.getMessage());
+                transfer.setStatus(Transfer.ERROR);
+                transfer.setError(e);
+            } finally {
+                transfer.setEndTime(System.currentTimeMillis() / 1000L);
+                if (completed >= getSize()) {
+                    transfer.setStatus(Transfer.COMPLETED);
+                } else if (!transfer.getStatus().equals(Transfer.ERROR)) {
+                    transfer.setStatus(Transfer.CANCELED);
+                }
+            }
+        }).start();
+    }
+
     public void sendEncrypted(int transferIdx, String host, int port) throws Exception {
         Transfer transfer = null;
 
@@ -86,7 +175,8 @@ public class File {
 
         try (Socket socket = new Socket(host, port);
              OutputStream outputStream = socket.getOutputStream();
-             FileInputStream fileInputStream = new FileInputStream(getPath())) {
+             FileInputStream fileInputStream = new FileInputStream(getPath())
+        ) {
 
             transfer = Transfer.getTransfers().get(transferIdx);
             transfer.setStatus(Transfer.STARTED);
@@ -99,7 +189,7 @@ public class File {
 
             SecretKey secretKey = new SecretKeySpec(keyBytes, "AES");
 
-            Cipher cipher = Cipher.getInstance("AES/CFB/PKCS5Padding");
+            Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
             cipher.init(Cipher.ENCRYPT_MODE, secretKey, new IvParameterSpec(ivBytes));
 
             byte[] buffer = new byte[4096];

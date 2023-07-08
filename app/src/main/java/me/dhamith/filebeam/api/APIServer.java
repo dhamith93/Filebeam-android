@@ -3,9 +3,18 @@ package me.dhamith.filebeam.api;
 import android.content.Context;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.Objects;
+
 import api.FileServiceGrpc;
+import io.grpc.Contexts;
+import io.grpc.Grpc;
 import io.grpc.InsecureServerCredentials;
+import io.grpc.Metadata;
 import io.grpc.Server;
+import io.grpc.ServerCall;
+import io.grpc.ServerCallHandler;
+import io.grpc.ServerInterceptor;
 import io.grpc.okhttp.OkHttpServerBuilder;
 
 public class APIServer {
@@ -20,8 +29,9 @@ public class APIServer {
         return new APIServer();
     }
 
-    public static APIServer getApiServer(Context context) {
+    public static APIServer getApiServer(Context context, String key) {
         apiServer.context = context;
+        apiServer.key = key;
         return apiServer;
     }
 
@@ -29,7 +39,8 @@ public class APIServer {
         int port = 9292;
 
         server = OkHttpServerBuilder.forPort(port, InsecureServerCredentials.create())
-                .addService(new FileService())
+                .addService(new FileService(this.key))
+                .intercept(new IPInterceptor())
                 .build()
                 .start();
 
@@ -54,6 +65,19 @@ public class APIServer {
         }
     }
 
+    static class IPInterceptor implements ServerInterceptor {
+        @Override
+        public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
+                ServerCall<ReqT, RespT> call,
+                Metadata headers,
+                ServerCallHandler<ReqT, RespT> next) {
+            // Extract client IP from the remote address
+            String clientIP = ((InetSocketAddress) Objects.requireNonNull(call.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR))).getHostString();
+            io.grpc.Context ctx = io.grpc.Context.current().withValue(FileService.CLIENT_IP_KEY, clientIP); // Store client IP in the context
+            return Contexts.interceptCall(ctx, call, headers, next);
+        }
+    }
+
     public String getKey() {
         return key;
     }
@@ -61,4 +85,5 @@ public class APIServer {
     public void setKey(String key) {
         this.key = key;
     }
+
 }
