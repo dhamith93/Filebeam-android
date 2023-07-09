@@ -23,7 +23,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:layout_marginTop="15dp"/>
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.circularreveal.cardview.CircularRevealCardView
             android:id="@+id/card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -32,13 +32,12 @@
             app:layout_constraintTop_toBottomOf="@+id/appName"
             android:layout_margin="15dp"
             app:cardCornerRadius="10dp"
-            app:cardElevation="10dp"
-            android:backgroundTint="@color/card_background">
+            app:cardElevation="10dp">
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginBottom="10dp">
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/lblIP"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -46,10 +45,9 @@
                     android:layout_marginTop="20dp"
                     android:layout_marginBottom="10dp"
                     android:textSize="22sp"
-                    android:textColor="@color/white"
                     android:textStyle="bold"/>
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/lblKey"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -60,10 +58,9 @@
                     android:layout_marginEnd="2dp"
                     android:layout_marginBottom="2dp"
                     android:textSize="22sp"
-                    android:textColor="@color/white"
                     android:textStyle="bold"/>
             </RelativeLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.circularreveal.cardview.CircularRevealCardView>
 
         <FrameLayout
             android:layout_width="match_parent"

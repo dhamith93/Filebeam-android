@@ -1,17 +1,16 @@
 package me.dhamith.filebeam.adapters;
 
 import android.content.Context;
-import android.graphics.drawable.Icon;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textview.MaterialTextView;
 
 import me.dhamith.filebeam.R;
 import me.dhamith.filebeam.helpers.System;
@@ -52,10 +51,10 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.FileVi
     }
 
     public class FileViewHolder extends RecyclerView.ViewHolder {
-        private TextView fileName;
-        private TextView fileType;
-        private TextView fileSize;
-        private Button removeFile;
+        private MaterialTextView fileName;
+        private MaterialTextView fileType;
+        private MaterialTextView fileSize;
+        private MaterialButton removeFile;
         private ImageView icon;
 
         public FileViewHolder(@NonNull View itemView) {

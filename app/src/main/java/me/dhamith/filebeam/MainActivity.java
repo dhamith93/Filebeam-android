@@ -40,6 +40,7 @@ import android.widget.TextView;
 import com.google.android.material.color.DynamicColors;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textview.MaterialTextView;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -105,8 +106,8 @@ public class MainActivity extends AppCompatActivity {
 
         requestPermissionLauncher.launch(REQUIRED_PERMISSIONS);
 
-        TextView txtIP = findViewById(R.id.lblIP);
-        TextView txtKey = findViewById(R.id.lblKey);
+        MaterialTextView txtIP = findViewById(R.id.lblIP);
+        MaterialTextView txtKey = findViewById(R.id.lblKey);
 
         String key = Keygen.getKey();
         txtIP.setText(System.getLocalIPs().toString());

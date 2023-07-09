@@ -4,12 +4,12 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textview.MaterialTextView;
+
 import java.util.List;
 import me.dhamith.filebeam.R;
 import me.dhamith.filebeam.helpers.GRPCClient;
@@ -40,8 +40,8 @@ public class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.De
     }
 
     public class DeviceViewHolder extends RecyclerView.ViewHolder {
-        private TextView deviceIp;
-        private EditText deviceKey;
+        private MaterialTextView deviceIp;
+        private TextInputEditText deviceKey;
         private MaterialButton sendBtn;
 
         public DeviceViewHolder(@NonNull View itemView) {

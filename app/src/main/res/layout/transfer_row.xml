@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layout"
     android:layout_width="match_parent"
@@ -9,8 +9,7 @@
     android:layout_marginStart="20dp"
     android:layout_marginEnd="20dp"
     android:layout_marginTop="5dp"
-    android:layout_marginBottom="5dp"
-    app:cardBackgroundColor="@color/row_card_background">
+    android:layout_marginBottom="5dp">
 
 
     <RelativeLayout
@@ -24,8 +23,9 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:contentDescription="@string/transfer_icon"
-            android:layout_marginStart="10dp"/>
-        <TextView
+            android:layout_marginStart="10dp"
+            android:backgroundTint="@color/material_dynamic_neutral60"/>
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/lblTxHost"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -33,59 +33,54 @@
             android:layout_marginTop="15dp"
             android:layout_marginEnd="30dp"
             android:text="111.111.111.111"
-            android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold"
             android:ellipsize="middle"
             android:singleLine="true"/>
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/lblTxFileName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="72dp"
             android:layout_marginEnd="30dp"
             android:text="a loooooooooooooooooooong file name.txt"
-            android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold"
             android:ellipsize="middle"
             android:singleLine="true"
             android:layout_below="@+id/lblTxHost"/>
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/lblTxFileType"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="72dp"
             android:text="video/mp4"
-            android:textColor="@color/white"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textAlignment="center"
             android:layout_below="@+id/lblTxFileName"/>
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/lblTxFileSize"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="72dp"
             android:text="0.MB / 2.4GB"
-            android:textColor="@color/white"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textAlignment="center"
             android:layout_below="@+id/lblTxFileType"/>
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/lblTxTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="72dp"
             android:text="elapsed | ETA"
             android:textAllCaps="true"
-            android:textColor="@color/white"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textAlignment="center"
             android:layout_below="@+id/lblTxFileSize"/>
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/lblStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -93,13 +88,12 @@
             android:layout_marginBottom="10dp"
             android:text="pending"
             android:textAllCaps="true"
-            android:textColor="@color/white"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textAlignment="center"
             android:layout_below="@+id/lblTxTime"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDownload"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -122,9 +116,9 @@
             android:progress="0"
             android:max="100"
             android:layout_below="@+id/lblStatus"
-            android:visibility="gone" />
+            android:visibility="invisible" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCancelTransfer"
             android:layout_width="20dp"
             android:layout_height="20dp"
@@ -133,7 +127,6 @@
             android:layout_marginTop="10dp"
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="10dp"
-            app:backgroundTint="@null"
             android:background="@drawable/outline_stop_circle_24" />
     </RelativeLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

@@ -5,16 +5,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textview.MaterialTextView;
+
 import me.dhamith.filebeam.R;
-import me.dhamith.filebeam.helpers.GRPCClient;
 import me.dhamith.filebeam.helpers.System;
 import me.dhamith.filebeam.pojo.File;
 import me.dhamith.filebeam.pojo.Transfer;
@@ -91,15 +91,15 @@ public class TransferAdapter extends RecyclerView.Adapter<TransferAdapter.Transf
     }
 
     public class TransferViewHolder extends RecyclerView.ViewHolder {
-        private TextView fileName;
-        private TextView fileType;
-        private TextView fileSize;
-        private TextView host;
-        private TextView time;
-        private TextView status;
+        private MaterialTextView fileName;
+        private MaterialTextView fileType;
+        private MaterialTextView fileSize;
+        private MaterialTextView host;
+        private MaterialTextView time;
+        private MaterialTextView status;
         private ProgressBar progress;
-        private Button cancelTransfer;
-        private  Button download;
+        private MaterialButton cancelTransfer;
+        private MaterialButton download;
         private ImageView icon;
 
         public TransferViewHolder(@NonNull View itemView) {
