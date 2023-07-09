@@ -37,6 +37,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.material.color.DynamicColors;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -65,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        DynamicColors.applyToActivitiesIfAvailable(this.getApplication());
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         binding.bottomNavView.setBackground(null);
 
@@ -73,8 +76,8 @@ public class MainActivity extends AppCompatActivity {
         WindowInsetsControllerCompat wic = new WindowInsetsControllerCompat(window, decorView);
         wic.setAppearanceLightStatusBars(false);
         wic.setAppearanceLightNavigationBars(false);
-        window.setStatusBarColor(Color.BLACK);
-        window.setNavigationBarColor(Color.BLACK);
+        window.setStatusBarColor(Color.parseColor("#222127"));
+        window.setNavigationBarColor(Color.parseColor("#222127"));
 
         setContentView(binding.getRoot());
         binding.bottomNavView.setBackground(null);
