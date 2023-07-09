@@ -17,11 +17,13 @@ import me.dhamith.filebeam.pojo.File;
 import me.dhamith.filebeam.pojo.Transfer;
 
 public class FileService extends FileServiceImplBase {
-    private String key;
+    private final String key;
+    private final Context context;
     public static final io.grpc.Context.Key<String> CLIENT_IP_KEY = io.grpc.Context.key("client-ip");
 
-    FileService(String key) {
+    FileService(String key, Context context) {
         this.key = key;
+        this.context = context;
     }
     @Override
     public void hello(Api.Void request, StreamObserver<Api.Void> responseObserver) {
@@ -72,7 +74,7 @@ public class FileService extends FileServiceImplBase {
                 )
         );
         try {
-            File.getSelectedFileList().get(file.getId()).sendEncrypted(idx, host, Integer.parseInt(port));
+            File.getSelectedFileList().get(file.getId()).sendEncrypted(this.context, idx, host, Integer.parseInt(port));
         } catch (Exception e) {
             Transfer.getTransfers().get(idx).setStatus(Transfer.ERROR);
             Transfer.getTransfers().get(idx).setError(e);

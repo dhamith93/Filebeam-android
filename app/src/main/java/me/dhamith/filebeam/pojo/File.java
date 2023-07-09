@@ -4,37 +4,26 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import android.util.Log;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactorySpi;
-import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -82,6 +71,7 @@ public class File {
 
     public static String getAbsolutePathFromUri(Context context, Uri uri) {
         String filePath = null;
+        Log.e("---", uri.toString());
 
         if (DocumentsContract.isDocumentUri(context, uri)) {
             String documentId = DocumentsContract.getDocumentId(uri);
@@ -168,15 +158,23 @@ public class File {
         }).start();
     }
 
-    public void sendEncrypted(int transferIdx, String host, int port) throws Exception {
+    public void sendEncrypted(Context context, int transferIdx, String host, int port) throws Exception {
         Transfer transfer = null;
-
         byte[] keyBytes = this.key.getBytes();
+        Socket socket = null;
+        OutputStream outputStream = null;
+        FileInputStream fileInputStream = null;
+        ParcelFileDescriptor parcelFileDescriptor = null;
 
-        try (Socket socket = new Socket(host, port);
-             OutputStream outputStream = socket.getOutputStream();
-             FileInputStream fileInputStream = new FileInputStream(getPath())
-        ) {
+        try {
+            socket = new Socket(host, port);
+            outputStream = socket.getOutputStream();
+            if (getPath() == null) {
+                parcelFileDescriptor = context.getContentResolver().openFileDescriptor(getUri(), "r");
+                fileInputStream = new FileInputStream(parcelFileDescriptor.getFileDescriptor());
+            } else {
+                fileInputStream = new FileInputStream(getPath());
+            }
 
             transfer = Transfer.getTransfers().get(transferIdx);
             transfer.setStatus(Transfer.STARTED);
@@ -218,6 +216,22 @@ public class File {
                 transfer.setEndTime(System.currentTimeMillis() / 1000L);
             }
             throw e;
+        } finally {
+            if (socket != null) {
+                socket.close();
+            }
+
+            if (outputStream != null) {
+                outputStream.close();
+            }
+
+            if (parcelFileDescriptor != null) {
+                parcelFileDescriptor.close();
+            }
+
+            if (fileInputStream != null) {
+                fileInputStream.close();
+            }
         }
     }
 

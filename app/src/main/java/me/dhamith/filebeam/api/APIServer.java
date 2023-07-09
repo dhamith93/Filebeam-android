@@ -39,7 +39,7 @@ public class APIServer {
         int port = 9292;
 
         server = OkHttpServerBuilder.forPort(port, InsecureServerCredentials.create())
-                .addService(new FileService(this.key))
+                .addService(new FileService(this.key, this.context))
                 .intercept(new IPInterceptor())
                 .build()
                 .start();
