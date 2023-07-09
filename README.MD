@@ -6,9 +6,9 @@ Supports sharing with Windows/Linux/macOS devices through the [Filebeam desktop]
 
 ## Screenshots
 
-<img src="https://github.com/dhamith93/filebeam/blob/main/assets/screenshots/01.png?raw=true" width="600" />
-<img src="https://github.com/dhamith93/filebeam/blob/main/assets/screenshots/02.png?raw=true" width="600" />
-<img src="https://github.com/dhamith93/filebeam/blob/main/assets/screenshots/03.png?raw=true" width="600" />
-<img src="https://github.com/dhamith93/filebeam/blob/main/assets/screenshots/04.png?raw=true" width="600" />
+<img src="https://github.com/dhamith93/filebeam-android/blob/main/assets/screenshots/01.png?raw=true" width="600" />
+<img src="https://github.com/dhamith93/filebeam-android/blob/main/assets/screenshots/02.png?raw=true" width="600" />
+<img src="https://github.com/dhamith93/filebeam-android/blob/main/assets/screenshots/03.png?raw=true" width="600" />
+<img src="https://github.com/dhamith93/filebeam-android/blob/main/assets/screenshots/04.png?raw=true" width="600" />
 
 
