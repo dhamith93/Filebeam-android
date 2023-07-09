@@ -39,8 +39,7 @@
             android:layout_toStartOf="@+id/btnShare"
             android:hint="@string/key"
             android:inputType="text"
-            android:minWidth="280dp"
-            android:textColor="@color/white" />
+            android:minWidth="280dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnShare"
