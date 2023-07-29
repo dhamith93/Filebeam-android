@@ -145,17 +145,10 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-                if (allGranted) {
-                    // Permissions granted, perform your desired operation
-                } else {
+                if (!allGranted) {
                     // Permissions denied, handle accordingly (e.g., show a message, disable functionality)
                 }
             }
-    );
-
-    private final ActivityResultLauncher<Intent> launcher = registerForActivityResult(
-        new ActivityResultContracts.StartActivityForResult(),
-        result -> {}
     );
 
     private final ActivityResultLauncher<Intent> filePickerResultLauncher = registerForActivityResult(
