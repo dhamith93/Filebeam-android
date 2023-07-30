@@ -6,6 +6,7 @@ import me.dhamith.filebeam.databinding.ActivityMainBinding;
 import me.dhamith.filebeam.helpers.Keygen;
 import me.dhamith.filebeam.helpers.System;
 import me.dhamith.filebeam.pojo.File;
+import me.dhamith.filebeam.pojo.Transfer;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -22,13 +23,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ClipData;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
+import android.os.PowerManager;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -36,6 +40,7 @@ import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.color.DynamicColors;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
@@ -45,12 +50,14 @@ import com.google.android.material.textview.MaterialTextView;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
     private static final String[] REQUIRED_PERMISSIONS = {
-            android.Manifest.permission.READ_EXTERNAL_STORAGE,
-            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.MANAGE_EXTERNAL_STORAGE,
             Manifest.permission.READ_MEDIA_IMAGES,
             Manifest.permission.READ_MEDIA_AUDIO,
@@ -62,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
     final TransfersFragment transfersFragment = new TransfersFragment();
     final FragmentManager fm = getSupportFragmentManager();
     Fragment active = devicesFragment;
+    private PowerManager.WakeLock wakeLock;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,11 +140,51 @@ public class MainActivity extends AppCompatActivity {
             filePickerResultLauncher.launch(data);
         });
 
+        Handler handler = new Handler();
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                boolean isAnyTransferActive = false;
+                for (Transfer t : Transfer.getTransfers()) {
+                    if (t.isActive()) {
+                        isAnyTransferActive = true;
+                        break;
+                    }
+                }
+                if (isAnyTransferActive) {
+                    if (wakeLock == null || !wakeLock.isHeld()) {
+                        acquireWakeLock();
+                    }
+                } else {
+                    releaseWakeLock();
+                }
+                handler.postDelayed(this, 5000);
+            }
+        };
+        handler.postDelayed(runnable, 5000);
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        releaseWakeLock();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        releaseWakeLock();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        acquireWakeLock();
     }
 
     private final ActivityResultLauncher<String[]> requestPermissionLauncher = registerForActivityResult(
             new ActivityResultContracts.RequestMultiplePermissions(), result -> {
-                // Check if all permissions are granted
                 boolean allGranted = true;
                 for (Boolean isGranted : result.values()) {
                     if (!isGranted) {
@@ -146,7 +194,8 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (!allGranted) {
-                    // Permissions denied, handle accordingly (e.g., show a message, disable functionality)
+//                    Toast.makeText(this, "Required permissions were not granted. Filebeam requires Read/Write permissions to storage to function properly.", Toast.LENGTH_LONG).show();
+//                    this.finish();
                 }
             }
     );
@@ -177,6 +226,23 @@ public class MainActivity extends AppCompatActivity {
             File.getSelectedFileList().add(file);
             final int idx = File.getSelectedFileList().lastIndexOf(file);
             filesFragment.updateList(idx);
+        }
+    }
+
+    private void acquireWakeLock() {
+        PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        if (powerManager != null) {
+            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Filebeam:WakeLock");
+            if (!wakeLock.isHeld()) {
+                wakeLock.acquire(30*60*1000L);
+            }
+        }
+    }
+
+    private void releaseWakeLock() {
+        if (wakeLock != null && wakeLock.isHeld()) {
+            wakeLock.release();
+            wakeLock = null;
         }
     }
 }

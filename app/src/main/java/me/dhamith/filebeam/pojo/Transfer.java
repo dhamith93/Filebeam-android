@@ -59,6 +59,10 @@ public class Transfer {
         return Objects.equals(file.getName(), other.file.getName()) && Objects.equals(file.getSize(), other.file.getSize());
     }
 
+    public boolean isActive() {
+        return this.status.equals(STARTED);
+    }
+
     public String getHost() {
         return host;
     }
