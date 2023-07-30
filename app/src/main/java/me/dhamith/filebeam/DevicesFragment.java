@@ -5,9 +5,8 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +23,7 @@ public class DevicesFragment extends Fragment {
     private RecyclerView devicesView;
     private DeviceListAdapter deviceListAdapter;
     private List<String> devices;
+    SwipeRefreshLayout swipeRefreshLayout;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -38,15 +38,8 @@ public class DevicesFragment extends Fragment {
         devicesView.setLayoutManager(new LinearLayoutManager(getContext()));
         devicesView.setAdapter(deviceListAdapter);
 
-        Handler handler = new Handler();
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                lookForDevices();
-                handler.postDelayed(this, 5000);
-            }
-        };
-        handler.postDelayed(runnable, 5000);
+        swipeRefreshLayout = view.findViewById(R.id.devicesSwipeLayout);
+        swipeRefreshLayout.setOnRefreshListener(this::lookForDevices);
 
         return view;
     }
@@ -68,6 +61,10 @@ public class DevicesFragment extends Fragment {
                     checkIfServiceUp(host);
                 }
             }).start();
+        }
+
+        if (swipeRefreshLayout != null && swipeRefreshLayout.isRefreshing()) {
+            swipeRefreshLayout.setRefreshing(false);
         }
     }
 
