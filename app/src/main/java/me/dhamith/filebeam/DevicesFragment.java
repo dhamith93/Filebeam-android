@@ -7,12 +7,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executors;
 
 import me.dhamith.filebeam.adapters.DeviceListAdapter;
@@ -45,6 +48,7 @@ public class DevicesFragment extends Fragment {
     }
 
     private void lookForDevices() {
+        Set<String> deviceIps = new HashSet<>(System.getLocalIPs());
         for (List<Integer> ip : System.getLocalIPsAsInt()) {
             int finalOctet = ip.get(3);
             ip.remove(3);
@@ -52,13 +56,17 @@ public class DevicesFragment extends Fragment {
             new Thread(() -> {
                 for (int i = finalOctet - 1; i > 0; i -= 1) {
                     String host = ipStr + "." + i;
-                    checkIfServiceUp(host);
+                    if (!deviceIps.contains(host)) {
+                        checkIfServiceUp(host);
+                    }
                 }
             }).start();
             new Thread(() -> {
                 for (int i = finalOctet + 1; i < 255; i += 1) {
                     String host = ipStr + "." + i;
-                    checkIfServiceUp(host);
+                    if (!deviceIps.contains(host)) {
+                        checkIfServiceUp(host);
+                    }
                 }
             }).start();
         }

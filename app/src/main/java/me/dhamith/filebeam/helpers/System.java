@@ -5,6 +5,7 @@ import android.util.Log;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -24,7 +25,9 @@ public class System {
                     while (addresses.hasMoreElements()) {
                         InetAddress inetAddress = addresses.nextElement();
                         if (inetAddress.isSiteLocalAddress() || (!inetAddress.isLoopbackAddress() && !inetAddress.isLinkLocalAddress())) {
-                            ips.add(inetAddress.getHostAddress());
+                            if (!isIPv6Address(inetAddress.getHostAddress())) {
+                                ips.add(inetAddress.getHostAddress());
+                            }
                         }
                     }
                 }
@@ -52,6 +55,15 @@ public class System {
         }
 
         return output;
+    }
+
+    public static boolean isIPv6Address(String ipAddress) {
+        try {
+            InetAddress inetAddress = InetAddress.getByName(ipAddress);
+            return inetAddress instanceof java.net.Inet6Address;
+        } catch (UnknownHostException e) {
+            return false;
+        }
     }
 
     public static boolean isUp(String host) {
