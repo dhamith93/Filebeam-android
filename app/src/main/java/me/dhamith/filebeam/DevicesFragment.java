@@ -6,6 +6,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +37,16 @@ public class DevicesFragment extends Fragment {
         devicesView = view.findViewById(R.id.deviceList);
         devicesView.setLayoutManager(new LinearLayoutManager(getContext()));
         devicesView.setAdapter(deviceListAdapter);
+
+        Handler handler = new Handler();
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                lookForDevices();
+                handler.postDelayed(this, 5000);
+            }
+        };
+        handler.postDelayed(runnable, 5000);
 
         return view;
     }
